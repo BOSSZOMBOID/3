@@ -659,13 +659,6 @@ package kabam.rotmg.messaging.impl
          }
       }
       
-      private static function setOptions() : int
-      {
-         var _loc1_:* = 0;
-         _loc1_ |= Parameters.data.disableImmuneText << 0;
-         return _loc1_ | Parameters.data.disableAllyParticles << 1;
-      }
-      
       public function disconnect() : void
       {
          this.removeServerConnectionListeners();
@@ -1269,11 +1262,11 @@ package kabam.rotmg.messaging.impl
             {
                if(getTimer() <= this.lastUseTimeInvUse)
                {
-                  this.addTextLine.dispatch(ChatMessage.make("","Please wait \'" + ((this.lastUseTimeInvUse - getTimer()) / 1000).toFixed(0) + "\' more seconds before attempting to use this item."));
+                  this.addTextLine.dispatch(ChatMessage.make("","Please wait \'" + ((this.lastUseTimeInvUse - getTimer()) / 0).toFixed(0) + "\' more seconds before attempting to use this item."));
                   SoundEffectLibrary.play("error");
                   return false;
                }
-               this.lastUseTimeInvUse = getTimer() + (!!_loc6_.hasOwnProperty("Cooldown") ? _loc6_.Cooldown * 1000 : Number(550));
+               this.lastUseTimeInvUse = getTimer() + (!!_loc6_.hasOwnProperty("Cooldown") ? _loc6_.Cooldown * 0 : Number(0));
             }
             else
             {
@@ -1418,44 +1411,42 @@ package kabam.rotmg.messaging.impl
       
       public function move(param1:int, param2:Player) : void
       {
-         var _loc3_:* = null;
-         var _loc8_:int = 0;
-         var _loc7_:int = 0;
          var _loc6_:int = 0;
-         var _loc5_:* = -1;
-         var _loc4_:* = -1;
+         var _loc4_:int = 0;
+         var _loc8_:* = null;
+         var _loc5_:int = 0;
+         var _loc3_:* = -1;
+         var _loc7_:* = -1;
          if(param2 && !param2.isPaused())
          {
-            _loc5_ = Number(param2.x_);
-            _loc4_ = Number(param2.y_);
+            _loc3_ = Number(param2.x_);
+            _loc7_ = Number(param2.y_);
          }
          if(param1 >= 0)
          {
-            _loc3_ = this.messages.require(16) as Move;
-            _loc3_.objectId_ = param2.objectId;
-            _loc3_.tickId_ = param1;
-            _loc3_.time_ = gs.lastUpdate_;
-            _loc3_.options = setOptions();
-            _loc3_.newPosition_.x_ = _loc5_;
-            _loc3_.newPosition_.y_ = _loc4_;
-            _loc8_ = gs.moveRecords_.lastClearTime_;
-            _loc3_.records_.length = 0;
-            if(_loc8_ >= 0 && _loc3_.time_ - _loc8_ > 125)
+            (_loc8_ = this.messages.require(16) as Move).objectId_ = param2.objectId;
+            _loc8_.tickId_ = param1;
+            _loc8_.time_ = gs.lastUpdate_;
+            _loc8_.newPosition_.x_ = _loc3_;
+            _loc8_.newPosition_.y_ = _loc7_;
+            _loc5_ = gs.moveRecords_.lastClearTime_;
+            _loc8_.records_.length = 0;
+            if(_loc5_ >= 0 && _loc8_.time_ - _loc5_ > 125)
             {
-               _loc7_ = Math.min(10,gs.moveRecords_.records_.length);
-               _loc6_ = 0;
-               while(_loc6_ < _loc7_)
+               _loc6_ = Math.min(10,gs.moveRecords_.records_.length);
+               _loc4_ = 0;
+               while(_loc4_ < _loc6_)
                {
-                  if(gs.moveRecords_.records_[_loc6_].time_ >= _loc3_.time_ - 25)
+                  if(gs.moveRecords_.records_[_loc4_].time_ >= _loc8_.time_ - 25)
                   {
                      break;
                   }
-                  _loc3_.records_.push(gs.moveRecords_.records_[_loc6_]);
-                  _loc6_++;
+                  _loc8_.records_.push(gs.moveRecords_.records_[_loc4_]);
+                  _loc4_++;
                }
             }
-            gs.moveRecords_.clear(_loc3_.time_);
-            serverConnection.sendMessage(_loc3_);
+            gs.moveRecords_.clear(_loc8_.time_);
+            serverConnection.sendMessage(_loc8_);
          }
          param2 && param2.onMove();
       }
@@ -1688,7 +1679,7 @@ package kabam.rotmg.messaging.impl
          this.addTextLine.dispatch(ChatMessage.make("*Client*","chat.connected"));
          this.encryptConnection();
          var _loc2_:Hello = this.messages.require(9) as Hello;
-         _loc2_.buildVersion = "4.4.0";
+         _loc2_.buildVersion = "4.3.1";
          _loc2_.gameId = gameId_;
          _loc2_.guid = this.rsaEncrypt(_loc1_.getUserId());
          _loc2_.loginToken = this.rsaEncrypt(_loc1_.getLoginToken());
@@ -3358,7 +3349,7 @@ package kabam.rotmg.messaging.impl
       {
          var _loc2_:* = null;
          var _loc3_:Object = JSON.parse(param1.errorDescription_);
-         if("4.4.0" != _loc3_.build)
+         if("4.3.1" != _loc3_.build)
          {
             handleIncorrectVersionFailureBasic(_loc3_.build);
             return;
@@ -3407,7 +3398,7 @@ package kabam.rotmg.messaging.impl
       {
          var _loc2_:Dialog = new Dialog("ClientUpdate.title","","ClientUpdate.leftButton",null,"/clientUpdate");
          _loc2_.setTextParams("ClientUpdate.description",{
-            "client":"4.4.0",
+            "client":"4.3.1",
             "server":param1
          });
          _loc2_.addEventListener("dialogLeftButton",this.onDoClientUpdate);
